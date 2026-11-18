@@ -3,298 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dziennik Szkoleniowy - Lasy Państwowe</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Dziennik Szkoleń LP 2026</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0fdf4; /* tailwind green-50 */
+        :root {
+            --lp-green: #1a5c38;
+            --lp-light-green: #2d8c55;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
         }
-
-        /* --- STYLE DO DRUKU / EKSPORTU DO PDF --- */
-        @media print {
-            /* Reset tła i kolorów dla drukarki */
-            body {
-                background-color: white !important;
-                color: black !important;
-                margin: 0;
-                padding: 0;
-            }
-
-            /* Ukrywamy elementy interfejsu (przyciski, selecty) */
-            .no-print {
-                display: none !important;
-            }
-
-            /* Pokaż elementy dedykowane tylko do druku */
-            .print-only {
-                display: block !important;
-            }
-
-            /* Ukrywamy obramowania formularzy, zamieniamy je wizualnie w zwykły tekst */
-            .print-text {
-                border: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-                color: black !important;
-                resize: none !important;
-                appearance: none !important;
-                -webkit-appearance: none !important;
-            }
-
-            /* Specjalne układy dla strony drukowanej */
-            .print-container {
-                padding: 0 !important;
-                margin: 0 auto !important;
-                max-width: 100% !important;
-                box-shadow: none !important;
-            }
-
-            /* Tabela obecności do druku */
-            .print-grid {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 4px !important;
-                font-size: 11pt;
-            }
-
-            /* Linie podpisu */
-            .signature-line {
-                border-top: 1px solid black;
-                width: 200px;
-                text-align: center;
-                padding-top: 5px;
-                margin-top: 50px;
-            }
-
-            /* Unikaj łamania elementów na stronach */
-            .avoid-break {
-                page-break-inside: avoid;
-            }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 5px solid var(--lp-green);
+        }
+        h1, h2 {
+            color: var(--lp-green);
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        select, input[type="date"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .participant-list {
+            margin-top: 20px;
+        }
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .participant-item:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+        .toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-present {
+            background-color: var(--lp-light-green);
+            color: white;
+        }
+        .btn-absent {
+            background-color: #d9534f;
+            color: white;
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--lp-green);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #124026;
+        }
+        .submit-btn:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .mark-all-btn {
+            background-color: #5bc0de;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen p-4 md:p-8">
+<body>
 
-    <!-- Główny kontener aplikacji -->
-    <div class="print-container max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-10 border-t-8 border-green-700">
-        
-        <!-- Nagłówek (Tytuł i kontrolki) -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-green-100">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-green-800">Dziennik Szkoleniowy</h1>
-                <p class="text-sm text-green-600 font-medium mt-1 print-only hidden">Regionalna Dyrekcja Lasów Państwowych w Poznaniu - Szkolenie stażystów 2026</p>
-            </div>
-            
-            <!-- Przyciski interfejsu (ukrywane w druku) -->
-            <div class="no-print mt-4 md:mt-0 flex flex-col sm:flex-row gap-3">
-                <select id="groupSelect" class="bg-green-50 border border-green-300 text-green-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5 font-medium cursor-pointer shadow-sm transition-colors hover:bg-green-100">
-                    <option value="1">Grupa I (16–27.11.2026 r.)</option>
-                    <option value="2">Grupa II (30.11–11.12.2026 r.)</option>
-                </select>
-                <button onclick="window.print()" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-2 px-5 rounded-lg shadow transition-colors flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Eksportuj PDF
-                </button>
-            </div>
-        </div>
-
-        <!-- Formularz zajęć -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-green-50/50 p-6 rounded-lg border border-green-100 avoid-break print-text">
-            
-            <!-- Data -->
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Data zajęć</label>
-                <input type="date" id="dateInput" class="print-text w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 p-2.5 shadow-sm">
-            </div>
-
-            <!-- Liczba godzin -->
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Liczba godzin</label>
-                <input type="number" id="hoursInput" min="1" class="print-text w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 p-2.5 shadow-sm">
-            </div>
-
-            <!-- Prowadzący -->
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Prowadzący zajęcia (Imię i Nazwisko)</label>
-                <input type="text" id="instructorInput" placeholder="Np. Modest Winkowski" class="print-text w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 p-2.5 shadow-sm">
-            </div>
-
-            <!-- Treść zajęć -->
-            <div class="md:col-span-2 relative">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Temat / Treść zajęć</label>
-                <!-- Textarea widoczne na ekranie. Zdarzenie input aktualizuje ukrytego diva, aby druk odbył się bez obcinania tekstu. -->
-                <textarea id="topicInput" rows="3" placeholder="Wprowadź realizowane tematy..." class="no-print w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 p-2.5 shadow-sm"></textarea>
-                <!-- Div widoczny tylko w druku, aby textarea ładnie się rozwijała -->
-                <div id="topicPrintDisplay" class="print-only hidden whitespace-pre-wrap font-serif text-gray-900 min-h-[4rem] border-b border-gray-400 pb-1"></div>
-            </div>
-        </div>
-
-        <!-- Sekcja obecności -->
-        <div class="avoid-break">
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 bg-green-700 text-white p-4 rounded-lg shadow-md no-print">
-                <h2 class="text-lg font-bold">Lista obecności</h2>
-                <div class="flex gap-4 font-medium bg-green-800 py-1.5 px-4 rounded-full mt-2 sm:mt-0 text-sm">
-                    <span id="presentCount">Obecnych: 0</span>
-                    <span class="text-green-300">|</span>
-                    <span id="absentCount">Nieobecnych: 0</span>
-                </div>
-            </div>
-
-            <!-- Nagłówek dla druku -->
-            <div class="print-only hidden mb-4 border-b-2 border-black pb-2 flex justify-between items-end">
-                <h2 class="text-lg font-bold">Lista obecności uczestników (<span id="printGroupName">Grupa I</span>)</h2>
-                <div class="text-sm font-bold">
-                    <span id="printPresentCount">Obecnych: 0</span> / 
-                    <span id="printAbsentCount">Nieobecnych: 0</span>
-                </div>
-            </div>
-
-            <!-- Kontener z listą uczestników generowany przez JS -->
-            <div id="attendanceList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 print-grid">
-                <!-- Elementy listy pojawią się tutaj -->
-            </div>
-        </div>
-
-        <!-- Miejsce na podpisy (głównie do wydruku) -->
-        <div class="print-only hidden mt-16 flex justify-between px-10 avoid-break">
-            <div class="signature-line">
-                <span class="text-xs">Podpis osoby sporządzającej</span>
-            </div>
-            <div class="signature-line">
-                <span class="text-xs">Podpis prowadzącego zajęcia</span>
-            </div>
-        </div>
+<div class="container">
+    <h1>Dziennik Szkolenia Stażystów 2026</h1>
+    
+    <div class="form-group">
+        <label for="grupa">Grupa szkoleniowa:</label>
+        <select id="grupa" onchange="zaladujUczestnikow()">
+            <option value="">-- Wybierz grupę --</option>
+            <option value="I grupa (16-27.11)">I grupa (16-27.11.2026)</option>
+            <option value="II grupa (30.11-11.12)">II grupa (30.11-11.12.2026)</option>
+        </select>
     </div>
 
-    <!-- Logika aplikacji -->
-    <script>
-        // Dane uczestników dla poszczególnych grup
-        const groupsData = {
-            "1": [
-                "Karolina Maćkowiak", "Franciszek Paszkowiak", "Maksymilian Bocheński",
-                "Izabela Sikorska", "Norbert Witecki", "Damian Malinowski",
-                "Joanna Zywert", "Kacper Krzemieniewski", "Krzysztof Klebba",
-                "Miłosz Kardacz", "Małgorzata Paszke", "Adrianna Kwaśna",
-                "Jakub Kit", "Marcin Wróbel", "Angelika Netter",
-                "Aleksandra Wylegała", "Anna Liczba", "Paweł Kupś",
-                "Franciszek Majorek", "Wojciech Jackowski", "Adam Darmonos"
-            ],
-            "2": [
-                "Hubert Staniewski", "Aleksander Adamiak", "Amelia Geller",
-                "Marta Szrama", "Jakub Siwa", "Piotr Sokołowski",
-                "Karolina Kowalik", "Piotr Budych", "Jakub Hojan",
-                "Aleksandra Jankiewicz", "Sara Bachorowicz", "Zuzanna Kowalska",
-                "Artur Kozłowski", "Oliwia Babacz", "Kacper Kozłowski",
-                "Martyna Łuszczyńska", "Julia Ratajczak", "Julia Słomińska",
-                "Martyna Barcz", "Jakub Zachciał", "Dominika Bogacz"
-            ]
+    <div class="form-group">
+        <label for="data-szkolenia">Data zajęć:</label>
+        <input type="date" id="data-szkolenia">
+    </div>
+
+    <div class="form-group">
+        <label for="prowadzacy">Prowadzący zajęcia (Imię i Nazwisko):</label>
+        <input type="text" id="prowadzacy" placeholder="Wpisz swoje dane">
+    </div>
+
+    <div class="form-group">
+        <label for="temat">Temat zajęć (skrót):</label>
+        <input type="text" id="temat" placeholder="Np. SILP, BO, LMN, Rejestrator...">
+    </div>
+
+    <div id="lista-sekcja" style="display: none;">
+        <h2>Lista obecności</h2>
+        <div class="controls">
+            <button class="mark-all-btn" onclick="ustawWszystkich(true)">Zaznacz wszystkich jako OBECNI</button>
+            <button class="mark-all-btn" style="background-color: #d9534f;" onclick="ustawWszystkich(false)">Zaznacz wszystkich jako NIEOBECNI</button>
+        </div>
+        <div class="participant-list" id="lista-uczestnikow">
+            <!-- Tutaj pojawią się uczestnicy -->
+        </div>
+        
+        <button id="zapisz-btn" class="submit-btn" onclick="wyslijDane()">Zapisz dzień do Arkusza Google</button>
+    </div>
+</div>
+
+<script>
+    // =========================================================================
+    // TUTAJ WKLEJ LINK ZE SKRYPTU GOOGLE (ZACZYNA SIĘ OD HTTPS://SCRIPT.GOOGLE.COM/...)
+    // =========================================================================
+    const skryptURL = 'TUTAJ_WKLEJ_SKOPIOWANY_ADRES_URL';
+
+    const grupa1 = [
+        "Karolina Maćkowiak – Karczma Borowa", "Franciszek Paszkowiak – Karczma Borowa",
+        "Maksymilian Bocheński – Kościan", "Izabela Sikorska – Antonin",
+        "Norbert Witecki – Łopuchówko", "Damian Malinowski – Łopuchówko",
+        "Joanna Zywert – Łopuchówko", "Kacper Krzemieniewski – Łopuchówko",
+        "Krzysztof Klebba – Oborniki", "Miłosz Kardacz – Oborniki",
+        "Małgorzata Paszke – Pniewy", "Adrianna Kwaśna – Pniewy",
+        "Jakub Kit – Kalisz", "Marcin Wróbel – Przedborów",
+        "Angelika Netter – Sieraków", "Aleksandra Wylegała – Sieraków",
+        "Anna Liczba – Jarocin", "Paweł Kupś – Jarocin",
+        "Franciszek Majorek – Grodzisk", "Wojciech Jackowski – Grodzisk",
+        "Adam Darmonos – Grodzisk"
+    ];
+
+    const grupa2 = [
+        "Hubert Staniewski – Jarocin", "Aleksander Adamiak – Jarocin",
+        "Amelia Geller – Sieraków", "Marta Szrama – Sieraków",
+        "Jakub Siwa – Antonin", "Piotr Sokołowski – Konstantynowo",
+        "Karolina Kowalik – Krotoszyn", "Piotr Budych – Pniewy",
+        "Jakub Hojan – Pniewy", "Aleksandra Jankiewicz – Turek",
+        "Sara Bachorowicz – Grodziec", "Zuzanna Kowalska – Grodziec",
+        "Artur Kozłowski – Koło", "Oliwia Babacz – Koło",
+        "Kacper Kozłowski – Konin", "Martyna Łuszczyńska – Góra Śląska",
+        "Julia Ratajczak – Babki", "Julia Słomińska – Babki",
+        "Martyna Barcz – Babki", "Jakub Zachciał – Oborniki",
+        "Dominika Bogacz – Oborniki"
+    ];
+
+    let aktualnaLista = [];
+    let statusObecnosci = {}; // true = obecny, false = nieobecny
+
+    // Ustaw dzisiejszą datę jako domyślną
+    document.getElementById('data-szkolenia').valueAsDate = new Date();
+
+    function zaladujUczestnikow() {
+        const wybranaGrupa = document.getElementById('grupa').value;
+        const sekcjaListy = document.getElementById('lista-sekcja');
+        const kontenerListy = document.getElementById('lista-uczestnikow');
+        
+        if (!wybranaGrupa) {
+            sekcjaListy.style.display = 'none';
+            return;
+        }
+
+        aktualnaLista = wybranaGrupa.includes('I grupa') ? grupa1 : grupa2;
+        statusObecnosci = {};
+        
+        kontenerListy.innerHTML = '';
+        aktualnaLista.forEach((osoba, index) => {
+            statusObecnosci[index] = true; // Domyślnie wszyscy obecni
+            
+            const div = document.createElement('div');
+            div.className = 'participant-item';
+            div.innerHTML = `
+                <span>${index + 1}. ${osoba}</span>
+                <button id="btn-${index}" class="toggle-btn btn-present" onclick="zmienStatus(${index})">OBECNY</button>
+            `;
+            kontenerListy.appendChild(div);
+        });
+
+        sekcjaListy.style.display = 'block';
+    }
+
+    function zmienStatus(index) {
+        statusObecnosci[index] = !statusObecnosci[index];
+        aktualizujPrzycisk(index);
+    }
+
+    function ustawWszystkich(stan) {
+        aktualnaLista.forEach((_, index) => {
+            statusObecnosci[index] = stan;
+            aktualizujPrzycisk(index);
+        });
+    }
+
+    function aktualizujPrzycisk(index) {
+        const btn = document.getElementById(`btn-${index}`);
+        if (statusObecnosci[index]) {
+            btn.className = 'toggle-btn btn-present';
+            btn.innerText = 'OBECNY';
+        } else {
+            btn.className = 'toggle-btn btn-absent';
+            btn.innerText = 'NIEOBECNY';
+        }
+    }
+
+    function wyslijDane() {
+        const dataSzkolenia = document.getElementById('data-szkolenia').value;
+        const grupa = document.getElementById('grupa').value;
+        const prowadzacy = document.getElementById('prowadzacy').value.trim();
+        const temat = document.getElementById('temat').value.trim();
+
+        if (!dataSzkolenia || !prowadzacy || !temat) {
+            alert("Proszę wypełnić datę, prowadzącego i temat zajęć.");
+            return;
+        }
+
+        if (skryptURL === 'TUTAJ_WKLEJ_SKOPIOWANY_ADRES_URL') {
+            alert("BŁĄD: Skonfiguruj poprawny link do Apps Script w kodzie HTML!");
+            return;
+        }
+
+        const obecni = [];
+        const nieobecni = [];
+
+        aktualnaLista.forEach((osoba, index) => {
+            if (statusObecnosci[index]) {
+                obecni.push(osoba);
+            } else {
+                nieobecni.push(osoba);
+            }
+        });
+
+        const btn = document.getElementById('zapisz-btn');
+        btn.innerText = "Wysyłanie danych...";
+        btn.disabled = true;
+
+        const daneDoWyslania = {
+            dataSzkolenia: dataSzkolenia,
+            grupa: grupa,
+            prowadzacy: prowadzacy,
+            temat: temat,
+            obecni: obecni.join(' | '),
+            nieobecni: nieobecni.join(' | ')
         };
 
-        // Elementy DOM
-        const groupSelect = document.getElementById('groupSelect');
-        const attendanceList = document.getElementById('attendanceList');
-        const presentCountEl = document.getElementById('presentCount');
-        const absentCountEl = document.getElementById('absentCount');
-        const printPresentCountEl = document.getElementById('printPresentCount');
-        const printAbsentCountEl = document.getElementById('printAbsentCount');
-        const printGroupNameEl = document.getElementById('printGroupName');
-        
-        const topicInput = document.getElementById('topicInput');
-        const topicPrintDisplay = document.getElementById('topicPrintDisplay');
-
-        // Aktualizacja widoku tekstu do druku po wpisaniu w textarea
-        // Rozwiązuje problem "obcinania" długich tekstów z textarea podczas drukowania w przeglądarkach.
-        topicInput.addEventListener('input', function(e) {
-            topicPrintDisplay.textContent = e.target.value;
+        fetch(skryptURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(daneDoWyslania)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Sukces! Obecność zapisana w Arkuszu Google.');
+            btn.innerText = "Zapisz dzień do Arkusza Google";
+            btn.disabled = false;
+        })
+        .catch(error => {
+            alert('Wystąpił błąd podczas wysyłania. Sprawdź połączenie z internetem.');
+            console.error(error);
+            btn.innerText = "Zapisz dzień do Arkusza Google";
+            btn.disabled = false;
         });
+    }
+</script>
 
-        // Nasłuchiwacz na zmianę grupy
-        groupSelect.addEventListener('change', (e) => {
-            renderList(e.target.value);
-            // Aktualizacja nazwy grupy dla wydruku
-            printGroupNameEl.textContent = groupSelect.options[groupSelect.selectedIndex].text;
-        });
-
-        // Funkcja generująca listę uczestników
-        function renderList(groupId) {
-            const participants = groupsData[groupId];
-            attendanceList.innerHTML = ''; // Czyszczenie aktualnej listy
-
-            participants.forEach((name, index) => {
-                // Tworzenie elementu wiersza/karty dla uczestnika
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-center p-3 border border-gray-200 rounded-lg hover:bg-green-50 transition-colors bg-white print-text";
-                
-                // Unikalne ID dla checkboxa, by label w niego klikał
-                const checkboxId = `person-${groupId}-${index}`;
-                
-                itemDiv.innerHTML = `
-                    <input 
-                        type="checkbox" 
-                        id="${checkboxId}" 
-                        class="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2 cursor-pointer attendance-checkbox print-text" 
-                        checked
-                    >
-                    <label for="${checkboxId}" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer w-full print:text-black print:font-normal select-none">
-                        ${index + 1}. ${name}
-                    </label>
-                `;
-
-                attendanceList.appendChild(itemDiv);
-
-                // Dodanie event listenera do checkboxa celem przeliczania obecności
-                const checkbox = itemDiv.querySelector('input');
-                checkbox.addEventListener('change', updateCounters);
-            });
-
-            // Przeliczenie początkowe (wszyscy obecni)
-            updateCounters();
-        }
-
-        // Funkcja przeliczająca obecności
-        function updateCounters() {
-            const checkboxes = document.querySelectorAll('.attendance-checkbox');
-            let present = 0;
-            let absent = 0;
-
-            checkboxes.forEach(box => {
-                if (box.checked) {
-                    present++;
-                    // Dodanie stylizacji dla widoku ekranowego dla zaznaczonych
-                    box.closest('div').classList.remove('bg-red-50', 'border-red-200');
-                    box.closest('div').classList.add('bg-white', 'border-gray-200');
-                    box.nextElementSibling.classList.remove('text-red-700', 'line-through');
-                    box.nextElementSibling.classList.add('text-gray-900');
-                } else {
-                    absent++;
-                    // Wizualne oznaczenie nieobecności (tylko na ekranie)
-                    box.closest('div').classList.remove('bg-white', 'border-gray-200');
-                    box.closest('div').classList.add('bg-red-50', 'border-red-200', 'no-print'); // Opcjonalnie: można dodać no-print, ale zwykle w dzienniku chcemy wiedzieć, że ktoś był nieobecny. Usuwamy no-print żeby wydrukowało odznaczony kwadracik.
-                    box.closest('div').classList.remove('no-print'); 
-                    box.nextElementSibling.classList.remove('text-gray-900');
-                    box.nextElementSibling.classList.add('text-red-700');
-                }
-            });
-
-            // Aktualizacja DOM UI
-            presentCountEl.textContent = `Obecnych: ${present}`;
-            absentCountEl.textContent = `Nieobecnych: ${absent}`;
-            
-            // Aktualizacja DOM Druk
-            printPresentCountEl.textContent = `Obecnych: ${present}`;
-            printAbsentCountEl.textContent = `Nieobecnych: ${absent}`;
-        }
-
-        // Ustawienie domyślnej daty na dzisiaj ułatwia szybkie wypełnianie
-        document.getElementById('dateInput').valueAsDate = new Date();
-
-        // Inicjalizacja pierwszej grupy po załadowaniu
-        renderList("1");
-    </script>
 </body>
 </html>
